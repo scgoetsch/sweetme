@@ -1,763 +1,841 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Earth Orbit Animation - Dallas Trace</title>
-    <meta name="description" content="Interactive 3D visualization of Earth's orbit showing Dallas, Texas tracing through space with Moon orbital mechanics">
+    <meta name="description" content="Interactive 3D visualization of Earth's orbit showing Dallas, Texas tracing through space with astronomically accurate Moon orbital mechanics">
     <meta name="keywords" content="earth orbit, astronomy, 3D visualization, celestial mechanics, dallas trace, moon orbit">
 
-```
-<!-- Three.js from CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-<style>
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-    html, body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        background: #000;
-        overflow: hidden;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: white;
-        position: fixed;
-        top: 0;
-        left: 0;
-    }
-    #container {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-    }
-    canvas {
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100% !important;
-        height: 100% !important;
-    }
-    #controls {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        z-index: 100;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 15px;
-        border-radius: 8px;
-        touch-action: none;
-        transition: opacity 0.3s ease;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    #controls.hidden {
-        opacity: 0;
-        pointer-events: none;
-    }
-    button {
-        background: linear-gradient(135deg, #4CAF50, #45a049);
-        border: none;
-        color: white;
-        padding: 10px 16px;
-        margin: 3px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-    button:hover {
-        background: linear-gradient(135deg, #45a049, #3d8b40);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-    }
-    button:active {
-        transform: translateY(0);
-    }
-    #hideToggle {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        z-index: 101;
-        background: rgba(0, 0, 0, 0.7);
-        border: none;
-        color: white;
-        padding: 10px 16px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 13px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.2s ease;
-    }
-    #hideToggle:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
-    .control-row {
-        margin: 10px 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    .control-row label {
-        font-size: 13px;
-        color: #e0e0e0;
-        min-width: 60px;
-    }
-    .control-row input[type="range"] {
-        flex: 1;
-        height: 4px;
-        background: rgba(255,255,255,0.2);
-        outline: none;
-        border-radius: 2px;
-    }
-    .control-row input[type="number"] {
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: white;
-        padding: 5px 8px;
-        border-radius: 4px;
-        width: 80px;
-        font-size: 13px;
-    }
-    #info {
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        z-index: 100;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        min-width: 200px;
-    }
-    .info-row {
-        margin: 4px 0;
-        display: flex;
-        justify-content: space-between;
-    }
-    .info-label {
-        color: #a0a0a0;
-    }
-    .info-value {
-        color: #ffffff;
-        font-weight: 500;
-    }
-    #header {
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 100;
-        background: rgba(0, 0, 0, 0.5);
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 600;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    @media (max-width: 768px) {
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        #container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
         #controls {
-            top: 10px;
-            left: 10px;
-            padding: 10px;
-            font-size: 12px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            touch-action: none;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #controls.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
         button {
-            padding: 8px 12px;
-            font-size: 12px;
-            margin: 2px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            margin: 3px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        button:hover {
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+        button:active {
+            transform: translateY(0);
         }
         #hideToggle {
-            top: 10px;
-            right: 10px;
-            padding: 8px 12px;
-            font-size: 12px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 101;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+        #hideToggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .control-row {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .control-row label {
+            font-size: 13px;
+            color: #e0e0e0;
+            min-width: 60px;
+        }
+        .control-row input[type="range"] {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            outline: none;
+            border-radius: 2px;
+        }
+        .control-row input[type="number"] {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 5px 8px;
+            border-radius: 4px;
+            width: 80px;
+            font-size: 13px;
         }
         #info {
-            bottom: 10px;
-            left: 10px;
-            font-size: 11px;
-            padding: 8px;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 200px;
+        }
+        .info-row {
+            margin: 4px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-label {
+            color: #a0a0a0;
+        }
+        .info-value {
+            color: #ffffff;
+            font-weight: 500;
         }
         #header {
-            top: 10px;
-            font-size: 12px;
-            padding: 6px 12px;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-    }
-</style>
-```
+        @media (max-width: 768px) {
+            #controls {
+                top: 10px;
+                left: 10px;
+                padding: 10px;
+                font-size: 12px;
+            }
+            button {
+                padding: 8px 12px;
+                font-size: 12px;
+                margin: 2px;
+            }
+            #hideToggle {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            #info {
+                bottom: 10px;
+                left: 10px;
+                font-size: 11px;
+                padding: 8px;
+            }
+            #header {
+                top: 10px;
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
 
 </head>
 <body>
     <div id="container">
-        <div id="header">Earth Orbit Animation - Dallas Trace</div>
+        <div id="header">Earth Orbit Animation - Dallas Trace (Astronomical Moon)</div>
 
-```
-    <button id="hideToggle" onclick="toggleControls()">Hide Controls</button>
-    
-    <div id="controls">
-        <div style="margin-bottom: 10px;">
-            <button onclick="startAnimation()">Start Animation</button>
-            <button onclick="resetAnimation()">Reset</button>
+        <button id="hideToggle" onclick="toggleControls()">Hide Controls</button>
+        
+        <div id="controls">
+            <div style="margin-bottom: 10px;">
+                <button onclick="startAnimation()">Start Animation</button>
+                <button onclick="resetAnimation()">Reset</button>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <button onclick="toggleTransparency()">Earth</button>
+                <button onclick="toggleSun()">Sun</button>
+                <button onclick="toggleMoon()">Moon</button>
+            </div>
+            <div class="control-row">
+                <label>Speed:</label>
+                <input type="range" id="speedControl" min="0.01" max="20" value="1" step="0.01" onchange="updateSpeed()">
+            </div>
+            <div class="control-row">
+                <label>Zoom:</label>
+                <input type="range" id="zoomControl" min="5" max="50" value="22" step="1" onchange="updateZoom()">
+            </div>
+            <div class="control-row">
+                <label>Year:</label>
+                <input type="number" id="yearInput" min="1900" max="2100" value="2025" onchange="updateYear()">
+            </div>
         </div>
-        <div style="margin-bottom: 10px;">
-            <button onclick="toggleTransparency()">Earth</button>
-            <button onclick="toggleSun()">Sun</button>
-            <button onclick="toggleMoon()">Moon</button>
-        </div>
-        <div class="control-row">
-            <label>Speed:</label>
-            <input type="range" id="speedControl" min="0.01" max="20" value="1" step="0.01" onchange="updateSpeed()">
-        </div>
-        <div class="control-row">
-            <label>Zoom:</label>
-            <input type="range" id="zoomControl" min="5" max="50" value="22" step="1" onchange="updateZoom()">
-        </div>
-        <div class="control-row">
-            <label>Year:</label>
-            <input type="number" id="yearInput" min="1900" max="2100" value="2025" onchange="updateYear()">
+        
+        <div id="info">
+            <div class="info-row">
+                <span class="info-label">Phase:</span>
+                <span class="info-value" id="phase">Initial View</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Earth Rotation:</span>
+                <span class="info-value" id="rotation">0°</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Orbital Position:</span>
+                <span class="info-value" id="orbital">Summer Solstice</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Moon Phase:</span>
+                <span class="info-value" id="moonPhase">New Moon</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Moon Distance:</span>
+                <span class="info-value" id="moonDistance">384,400 km</span>
+            </div>
         </div>
     </div>
-    
-    <div id="info">
-        <div class="info-row">
-            <span class="info-label">Phase:</span>
-            <span class="info-value" id="phase">Initial View</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Earth Rotation:</span>
-            <span class="info-value" id="rotation">0°</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Orbital Position:</span>
-            <span class="info-value" id="orbital">Summer Solstice</span>
-        </div>
-    </div>
-</div>
 
-<script>
-    // Global variables
-    let scene, camera, renderer, earth, sun, dallasPoint, moon, traceGeometry, traceLine, moonTraceGeometry, moonTraceLine;
-    let animationPhase = 0;
-    let animationSpeed = 1;
-    let isAnimating = false;
-    let earthRotation = 0;
-    let orbitalRotation = 0;
-    let moonRotation = 0;
-    let tracePoints = [];
-    let moonTracePoints = [];
-    let earthTransparent = false;
-    let sunVisible = false;
-    let moonVisible = true;
-    let isDragging = false;
-    let previousMousePosition = { x: 0, y: 0 };
-    let cameraRotation = { x: 0.35, y: 0 };
-    let cameraDistance = 22;
-    let touches = [];
-    let lastTouchDistance = 0;
-    let selectedYear = 2025;
-    let controlsVisible = true;
+    <script>
+        // Global variables
+        let scene, camera, renderer, earth, sun, dallasPoint, moon, traceGeometry, traceLine, moonTraceGeometry, moonTraceLine;
+        let animationPhase = 0;
+        let animationSpeed = 1;
+        let isAnimating = false;
+        let earthRotation = 0;
+        let orbitalRotation = 0;
+        let moonAnomaly = 0; // True anomaly for elliptical orbit
+        let moonMeanMotion = 0; // Mean motion for orbital calculations
+        let tracePoints = [];
+        let moonTracePoints = [];
+        let earthTransparent = false;
+        let sunVisible = false;
+        let moonVisible = true;
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        let cameraRotation = { x: 0.35, y: 0 };
+        let cameraDistance = 22;
+        let touches = [];
+        let lastTouchDistance = 0;
+        let selectedYear = 2025;
+        let controlsVisible = true;
 
-    // Dallas coordinates (latitude: 32.7767°, longitude: -96.7970°)
-    const dallasLat = 32.7767 * Math.PI / 180;
-    const dallasLon = -96.7970 * Math.PI / 180;
-    const earthTilt = 23.5 * Math.PI / 180; // Earth's axial tilt in radians
+        // Dallas coordinates (latitude: 32.7767°, longitude: -96.7970°)
+        const dallasLat = 32.7767 * Math.PI / 180;
+        const dallasLon = -96.7970 * Math.PI / 180;
+        const earthTilt = 23.5 * Math.PI / 180; // Earth's axial tilt in radians
 
-    function init() {
-        try {
-            // Scene setup with proper sizing
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            
-            // Force proper canvas sizing
-            const container = document.getElementById('container');
-            const containerRect = container.getBoundingClientRect();
-            renderer.setSize(containerRect.width, containerRect.height, false);
-            renderer.domElement.style.width = '100%';
-            renderer.domElement.style.height = '100%';
-            renderer.setClearColor(0x000011);
-            container.appendChild(renderer.domElement);
+        // Astronomically accurate Moon orbital parameters
+        const moonOrbitalPeriod = 27.32166; // Sidereal month in days
+        const moonInclination = 5.145 * Math.PI / 180; // Inclination to ecliptic
+        const moonEccentricity = 0.0549; // Mean eccentricity
+        const moonSemiMajorAxis = 3.844; // Scaled semi-major axis (384,400 km scaled)
+        const moonPeriapsis = moonSemiMajorAxis * (1 - moonEccentricity); // Perigee distance
+        const moonApoapsis = moonSemiMajorAxis * (1 + moonEccentricity); // Apogee distance
+        const apsicalPrecessionPeriod = 8.85 * 365.25; // 8.85 years in days
+        const nodalPrecessionPeriod = 18.6 * 365.25; // 18.6 years in days
 
-            // Create Sun
-            const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
-            const sunMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0xffff00,
-                emissive: 0xffaa00,
-                emissiveIntensity: 0.3
-            });
-            sun = new THREE.Mesh(sunGeometry, sunMaterial);
-            sun.visible = sunVisible;
-            scene.add(sun);
+        function init() {
+            try {
+                // Scene setup with proper sizing
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                
+                // Force proper canvas sizing
+                const container = document.getElementById('container');
+                const containerRect = container.getBoundingClientRect();
+                renderer.setSize(containerRect.width, containerRect.height, false);
+                renderer.domElement.style.width = '100%';
+                renderer.domElement.style.height = '100%';
+                renderer.setClearColor(0x000011);
+                container.appendChild(renderer.domElement);
 
-            // Create Earth with initial tilt
-            const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
-            const earthMaterial = new THREE.MeshLambertMaterial({ 
-                color: 0x4444ff,
-                transparent: false,
-                opacity: 1.0
-            });
-            earth = new THREE.Mesh(earthGeometry, earthMaterial);
-            earth.position.set(15, 0, 0); // Start at summer solstice position
-            earth.rotation.z = earthTilt; // Apply Earth's axial tilt
-            scene.add(earth);
+                // Create Sun
+                const sunGeometry = new THREE.SphereGeometry(2, 32, 32);
+                const sunMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xffff00,
+                    emissive: 0xffaa00,
+                    emissiveIntensity: 0.3
+                });
+                sun = new THREE.Mesh(sunGeometry, sunMaterial);
+                sun.visible = sunVisible;
+                scene.add(sun);
 
-            // Create Dallas point
-            const pointGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-            const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-            dallasPoint = new THREE.Mesh(pointGeometry, pointMaterial);
-            updateDallasPosition();
-            scene.add(dallasPoint);
+                // Create Earth with initial tilt
+                const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
+                const earthMaterial = new THREE.MeshLambertMaterial({ 
+                    color: 0x4444ff,
+                    transparent: false,
+                    opacity: 1.0
+                });
+                earth = new THREE.Mesh(earthGeometry, earthMaterial);
+                earth.position.set(15, 0, 0); // Start at summer solstice position
+                earth.rotation.z = earthTilt; // Apply Earth's axial tilt
+                scene.add(earth);
 
-            // Create Moon
-            const moonGeometry = new THREE.SphereGeometry(0.27, 16, 16);
-            const moonMaterial = new THREE.MeshLambertMaterial({ 
-                color: 0xcccccc,
-                transparent: true,
-                opacity: 0.7
-            });
-            moon = new THREE.Mesh(moonGeometry, moonMaterial);
-            moon.visible = moonVisible;
-            updateMoonPosition();
-            scene.add(moon);
+                // Create Dallas point
+                const pointGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+                const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                dallasPoint = new THREE.Mesh(pointGeometry, pointMaterial);
+                updateDallasPosition();
+                scene.add(dallasPoint);
 
-            // Create trace line for Dallas
-            traceGeometry = new THREE.BufferGeometry();
-            const traceMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 });
-            traceLine = new THREE.Line(traceGeometry, traceMaterial);
-            scene.add(traceLine);
+                // Create Moon with correct size ratio
+                const moonGeometry = new THREE.SphereGeometry(0.273, 16, 16); // 27.3% of Earth's diameter
+                const moonMaterial = new THREE.MeshLambertMaterial({ 
+                    color: 0xcccccc,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                moon = new THREE.Mesh(moonGeometry, moonMaterial);
+                moon.visible = moonVisible;
+                updateMoonPosition();
+                scene.add(moon);
 
-            // Create trace line for Moon
-            moonTraceGeometry = new THREE.BufferGeometry();
-            const moonTraceMaterial = new THREE.LineBasicMaterial({ 
-                color: 0x0066ff, 
-                linewidth: 2,
-                transparent: true,
-                opacity: 0.4
-            });
-            moonTraceLine = new THREE.Line(moonTraceGeometry, moonTraceMaterial);
-            moonTraceLine.visible = moonVisible;
-            scene.add(moonTraceLine);
+                // Create trace line for Dallas
+                traceGeometry = new THREE.BufferGeometry();
+                const traceMaterial = new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 2 });
+                traceLine = new THREE.Line(traceGeometry, traceMaterial);
+                scene.add(traceLine);
 
-            // Lighting
-            const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
-            scene.add(ambientLight);
-            
-            const sunLight = new THREE.PointLight(0xffffff, 1, 100);
-            sunLight.position.set(0, 0, 0);
-            scene.add(sunLight);
+                // Create trace line for Moon
+                moonTraceGeometry = new THREE.BufferGeometry();
+                const moonTraceMaterial = new THREE.LineBasicMaterial({ 
+                    color: 0x0066ff, 
+                    linewidth: 2,
+                    transparent: true,
+                    opacity: 0.4
+                });
+                moonTraceLine = new THREE.Line(moonTraceGeometry, moonTraceMaterial);
+                moonTraceLine.visible = moonVisible;
+                scene.add(moonTraceLine);
 
-            // Set initial camera position
-            updateCameraPosition();
+                // Lighting
+                const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+                scene.add(ambientLight);
+                
+                const sunLight = new THREE.PointLight(0xffffff, 1, 100);
+                sunLight.position.set(0, 0, 0);
+                scene.add(sunLight);
 
-            // Add mouse controls for 3D rotation
-            addMouseControls();
+                // Set initial camera position
+                updateCameraPosition();
 
-            // Start animation loop
-            animate();
-        } catch (error) {
-            console.error('Initialization error:', error);
+                // Add mouse controls for 3D rotation
+                addMouseControls();
+
+                // Start animation loop
+                animate();
+            } catch (error) {
+                console.error('Initialization error:', error);
+            }
         }
-    }
 
-    function updateCameraPosition() {
-        camera.position.x = cameraDistance * Math.sin(cameraRotation.y) * Math.cos(cameraRotation.x);
-        camera.position.y = cameraDistance * Math.sin(cameraRotation.x);
-        camera.position.z = cameraDistance * Math.cos(cameraRotation.y) * Math.cos(cameraRotation.x);
-        camera.lookAt(0, 0, 0);
-    }
+        function updateCameraPosition() {
+            camera.position.x = cameraDistance * Math.sin(cameraRotation.y) * Math.cos(cameraRotation.x);
+            camera.position.y = cameraDistance * Math.sin(cameraRotation.x);
+            camera.position.z = cameraDistance * Math.cos(cameraRotation.y) * Math.cos(cameraRotation.x);
+            camera.lookAt(0, 0, 0);
+        }
 
-    function addMouseControls() {
-        const canvas = renderer.domElement;
-        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        function addMouseControls() {
+            const canvas = renderer.domElement;
+            canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
-        // Mouse events
-        canvas.addEventListener('mousedown', handleMouseDown);
-        canvas.addEventListener('mousemove', handleMouseMove);
-        canvas.addEventListener('mouseup', handleMouseUp);
-        canvas.addEventListener('mouseleave', handleMouseUp);
-        canvas.addEventListener('wheel', handleWheel);
+            // Mouse events
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+            canvas.addEventListener('mouseleave', handleMouseUp);
+            canvas.addEventListener('wheel', handleWheel);
 
-        // Touch events
-        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-        canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
-    }
+            // Touch events
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+        }
 
-    function handleMouseDown(event) {
-        isDragging = true;
-        previousMousePosition = { x: event.clientX, y: event.clientY };
-    }
-
-    function handleMouseMove(event) {
-        if (!isDragging) return;
-        const deltaMove = {
-            x: event.clientX - previousMousePosition.x,
-            y: event.clientY - previousMousePosition.y
-        };
-        cameraRotation.y += deltaMove.x * 0.01;
-        cameraRotation.x += deltaMove.y * 0.01;
-        cameraRotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, cameraRotation.x));
-        updateCameraPosition();
-        previousMousePosition = { x: event.clientX, y: event.clientY };
-    }
-
-    function handleMouseUp() {
-        isDragging = false;
-    }
-
-    function handleWheel(event) {
-        event.preventDefault();
-        const zoomSpeed = 2;
-        cameraDistance += (event.deltaY > 0 ? zoomSpeed : -zoomSpeed);
-        cameraDistance = Math.max(5, Math.min(50, cameraDistance));
-        document.getElementById('zoomControl').value = cameraDistance;
-        updateCameraPosition();
-    }
-
-    function handleTouchStart(event) {
-        event.preventDefault();
-        touches = Array.from(event.touches);
-        if (touches.length === 1) {
+        function handleMouseDown(event) {
             isDragging = true;
-            previousMousePosition = { x: touches[0].clientX, y: touches[0].clientY };
-        } else if (touches.length === 2) {
-            isDragging = false;
-            const touch1 = touches[0];
-            const touch2 = touches[1];
-            lastTouchDistance = Math.sqrt(
-                Math.pow(touch2.clientX - touch1.clientX, 2) +
-                Math.pow(touch2.clientY - touch1.clientY, 2)
-            );
+            previousMousePosition = { x: event.clientX, y: event.clientY };
         }
-    }
 
-    function handleTouchMove(event) {
-        event.preventDefault();
-        touches = Array.from(event.touches);
-        if (touches.length === 1 && isDragging) {
+        function handleMouseMove(event) {
+            if (!isDragging) return;
             const deltaMove = {
-                x: touches[0].clientX - previousMousePosition.x,
-                y: touches[0].clientY - previousMousePosition.y
+                x: event.clientX - previousMousePosition.x,
+                y: event.clientY - previousMousePosition.y
             };
             cameraRotation.y += deltaMove.x * 0.01;
             cameraRotation.x += deltaMove.y * 0.01;
             cameraRotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, cameraRotation.x));
             updateCameraPosition();
-            previousMousePosition = { x: touches[0].clientX, y: touches[0].clientY };
-        } else if (touches.length === 2) {
-            const touch1 = touches[0];
-            const touch2 = touches[1];
-            const touchDistance = Math.sqrt(
-                Math.pow(touch2.clientX - touch1.clientX, 2) +
-                Math.pow(touch2.clientY - touch1.clientY, 2)
-            );
-            if (lastTouchDistance > 0) {
-                const zoomSpeed = 0.05;
-                const deltaDistance = touchDistance - lastTouchDistance;
-                cameraDistance -= deltaDistance * zoomSpeed;
-                cameraDistance = Math.max(5, Math.min(50, cameraDistance));
-                document.getElementById('zoomControl').value = cameraDistance;
-                updateCameraPosition();
-            }
-            lastTouchDistance = touchDistance;
+            previousMousePosition = { x: event.clientX, y: event.clientY };
         }
-    }
 
-    function handleTouchEnd(event) {
-        event.preventDefault();
-        touches = Array.from(event.touches);
-        if (touches.length === 0) {
+        function handleMouseUp() {
             isDragging = false;
-            lastTouchDistance = 0;
-        } else if (touches.length === 1) {
-            isDragging = true;
-            previousMousePosition = { x: touches[0].clientX, y: touches[0].clientY };
-            lastTouchDistance = 0;
         }
-    }
 
-    function updateDallasPosition() {
-        try {
-            const earthRadius = 1;
-            let x = earthRadius * Math.cos(dallasLat) * Math.cos(dallasLon + earthRotation);
-            let y = earthRadius * Math.sin(dallasLat);
-            let z = earthRadius * Math.cos(dallasLat) * Math.sin(dallasLon + earthRotation);
-            
-            const seasonalTilt = earthTilt * Math.cos(orbitalRotation);
-            const yTilted = y * Math.cos(seasonalTilt) - z * Math.sin(seasonalTilt);
-            const zTilted = y * Math.sin(seasonalTilt) + z * Math.cos(seasonalTilt);
-            
-            dallasPoint.position.set(
-                earth.position.x + x,
-                earth.position.y + yTilted,
-                earth.position.z + zTilted
-            );
+        function handleWheel(event) {
+            event.preventDefault();
+            const zoomSpeed = 2;
+            cameraDistance += (event.deltaY > 0 ? zoomSpeed : -zoomSpeed);
+            cameraDistance = Math.max(5, Math.min(50, cameraDistance));
+            document.getElementById('zoomControl').value = cameraDistance;
+            updateCameraPosition();
+        }
 
-            if (isAnimating && animationPhase >= 1) {
-                tracePoints.push(new THREE.Vector3(
-                    dallasPoint.position.x,
-                    dallasPoint.position.y,
-                    dallasPoint.position.z
-                ));
-                updateTraceLine();
+        function handleTouchStart(event) {
+            event.preventDefault();
+            touches = Array.from(event.touches);
+            if (touches.length === 1) {
+                isDragging = true;
+                previousMousePosition = { x: touches[0].clientX, y: touches[0].clientY };
+            } else if (touches.length === 2) {
+                isDragging = false;
+                const touch1 = touches[0];
+                const touch2 = touches[1];
+                lastTouchDistance = Math.sqrt(
+                    Math.pow(touch2.clientX - touch1.clientX, 2) +
+                    Math.pow(touch2.clientY - touch1.clientY, 2)
+                );
             }
-        } catch (error) {
-            console.error('Error updating Dallas position:', error);
         }
-    }
 
-    function updateMoonPosition() {
-        try {
-            if (!moon || !earth) return;
-            
-            // Moon's orbit - astronomically accurate parameters
-            const moonOrbitRadius = 3.84; // Scaled distance
-            const moonOrbitalTilt = 5.1 * Math.PI / 180; // 5.1° inclination
-            const moonOrbitSpeed = moonRotation;
-            
-            // Calculate Moon position in its orbital plane
-            let moonX = moonOrbitRadius * Math.cos(moonOrbitSpeed);
-            let moonY = moonOrbitRadius * Math.sin(moonOrbitalTilt) * Math.sin(moonOrbitSpeed);
-            let moonZ = moonOrbitRadius * Math.cos(moonOrbitalTilt) * Math.sin(moonOrbitSpeed);
-            
-            // Apply Earth's axial tilt
-            const seasonalTilt = earthTilt * Math.cos(orbitalRotation);
-            const moonYTilted = moonY * Math.cos(seasonalTilt) - moonZ * Math.sin(seasonalTilt);
-            const moonZTilted = moonY * Math.sin(seasonalTilt) + moonZ * Math.cos(seasonalTilt);
-            
-            moon.position.set(
-                earth.position.x + moonX,
-                earth.position.y + moonYTilted,
-                earth.position.z + moonZTilted
-            );
-
-            if (isAnimating && animationPhase >= 1 && moonVisible) {
-                moonTracePoints.push(new THREE.Vector3(
-                    moon.position.x,
-                    moon.position.y,
-                    moon.position.z
-                ));
-                updateMoonTraceLine();
-            }
-        } catch (error) {
-            console.error('Error updating Moon position:', error);
-        }
-    }
-
-    function updateTraceLine() {
-        try {
-            if (tracePoints.length > 1) {
-                traceGeometry.setFromPoints(tracePoints);
-            }
-        } catch (error) {
-            console.error('Error updating trace line:', error);
-        }
-    }
-
-    function updateMoonTraceLine() {
-        try {
-            if (moonTracePoints.length > 1 && moonVisible) {
-                moonTraceGeometry.setFromPoints(moonTracePoints);
-                moonTraceLine.visible = true;
-            } else {
-                moonTraceLine.visible = false;
-            }
-        } catch (error) {
-            console.error('Error updating moon trace line:', error);
-        }
-    }
-
-    function startAnimation() {
-        if (!isAnimating) {
-            isAnimating = true;
-            animationPhase = 1;
-            document.getElementById('phase').textContent = 'Earth Rotation';
-        }
-    }
-
-    function resetAnimation() {
-        isAnimating = false;
-        animationPhase = 0;
-        earthRotation = 0;
-        orbitalRotation = 0;
-        moonRotation = 0;
-        tracePoints = [];
-        moonTracePoints = [];
-        
-        earth.position.set(15, 0, 0);
-        earth.rotation.z = earthTilt;
-        earth.material.transparent = false;
-        earth.material.opacity = 1.0;
-        earthTransparent = false;
-        moonVisible = true;
-        moon.visible = moonVisible;
-        moonTraceLine.visible = moonVisible;
-        
-        cameraRotation = { x: 0.35, y: 0 };
-        cameraDistance = 22;
-        document.getElementById('zoomControl').value = cameraDistance;
-        updateCameraPosition();
-        
-        updateDallasPosition();
-        updateMoonPosition();
-        updateTraceLine();
-        updateMoonTraceLine();
-        updateInfo();
-        
-        document.getElementById('phase').textContent = 'Initial View';
-    }
-
-    function toggleTransparency() {
-        earthTransparent = !earthTransparent;
-        earth.material.transparent = earthTransparent;
-        earth.material.opacity = earthTransparent ? 0.3 : 1.0;
-    }
-
-    function toggleSun() {
-        sunVisible = !sunVisible;
-        sun.visible = sunVisible;
-    }
-
-    function toggleMoon() {
-        moonVisible = !moonVisible;
-        moon.visible = moonVisible;
-        moonTraceLine.visible = moonVisible;
-    }
-
-    function toggleControls() {
-        controlsVisible = !controlsVisible;
-        const controls = document.getElementById('controls');
-        const hideButton = document.getElementById('hideToggle');
-        
-        if (controlsVisible) {
-            controls.classList.remove('hidden');
-            hideButton.textContent = 'Hide Controls';
-        } else {
-            controls.classList.add('hidden');
-            hideButton.textContent = 'Show Controls';
-        }
-    }
-
-    function updateSpeed() {
-        animationSpeed = parseFloat(document.getElementById('speedControl').value);
-    }
-
-    function updateZoom() {
-        cameraDistance = parseFloat(document.getElementById('zoomControl').value);
-        updateCameraPosition();
-    }
-
-    function updateYear() {
-        selectedYear = parseInt(document.getElementById('yearInput').value);
-        if (isAnimating) {
-            resetAnimation();
-        }
-    }
-
-    function updateInfo() {
-        try {
-            document.getElementById('rotation').textContent = Math.round(earthRotation * 180 / Math.PI) + '°';
-            
-            const orbitalDegrees = orbitalRotation * 180 / Math.PI;
-            let season = 'Summer Solstice';
-            if (orbitalDegrees > 45 && orbitalDegrees <= 135) season = 'Fall Equinox';
-            else if (orbitalDegrees > 135 && orbitalDegrees <= 225) season = 'Winter Solstice';
-            else if (orbitalDegrees > 225 && orbitalDegrees <= 315) season = 'Spring Equinox';
-            
-            document.getElementById('orbital').textContent = season + ' (' + Math.round(orbitalDegrees) + '°)';
-        } catch (error) {
-            console.error('Error updating info:', error);
-        }
-    }
-
-    function animate() {
-        try {
-            requestAnimationFrame(animate);
-
-            if (isAnimating) {
-                const rotationSpeed = 0.05 * animationSpeed;
-                const orbitalSpeed = rotationSpeed / 365.25;
-                const moonSpeed = rotationSpeed * 13.37;
-
-                if (animationPhase === 1) {
-                    earthRotation += rotationSpeed;
-                    moonRotation += moonSpeed;
-                    updateDallasPosition();
-                    updateMoonPosition();
-                    
-                    if (earthRotation >= 2 * Math.PI) {
-                        animationPhase = 2;
-                        earth.material.transparent = true;
-                        earth.material.opacity = 0.3;
-                        earthTransparent = true;
-                        document.getElementById('phase').textContent = 'Orbital Trace';
-                    }
-                } else if (animationPhase === 2) {
-                    earthRotation += rotationSpeed;
-                    orbitalRotation += orbitalSpeed;
-                    moonRotation += moonSpeed;
-                    
-                    const orbitRadius = 15;
-                    earth.position.x = orbitRadius * Math.cos(orbitalRotation);
-                    earth.position.z = orbitRadius * Math.sin(orbitalRotation);
-                    earth.rotation.z = earthTilt * Math.cos(orbitalRotation);
-                    
-                    updateDallasPosition();
-                    updateMoonPosition();
-                    
-                    if (orbitalRotation >= 2 * Math.PI) {
-                        isAnimating = false;
-                        document.getElementById('phase').textContent = 'Complete';
-                    }
+        function handleTouchMove(event) {
+            event.preventDefault();
+            touches = Array.from(event.touches);
+            if (touches.length === 1 && isDragging) {
+                const deltaMove = {
+                    x: touches[0].clientX - previousMousePosition.x,
+                    y: touches[0].clientY - previousMousePosition.y
+                };
+                cameraRotation.y += deltaMove.x * 0.01;
+                cameraRotation.x += deltaMove.y * 0.01;
+                cameraRotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, cameraRotation.x));
+                updateCameraPosition();
+                previousMousePosition = { x: touches[0].clientX, y: touches[0].clientY };
+            } else if (touches.length === 2) {
+                const touch1 = touches[0];
+                const touch2 = touches[1];
+                const touchDistance = Math.sqrt(
+                    Math.pow(touch2.clientX - touch1.clientX, 2) +
+                    Math.pow(touch2.clientY - touch1.clientY, 2)
+                );
+                if (lastTouchDistance > 0) {
+                    const zoomSpeed = 0.05;
+                    const deltaDistance = touchDistance - lastTouchDistance;
+                    cameraDistance -= deltaDistance * zoomSpeed;
+                    cameraDistance = Math.max(5, Math.min(50, cameraDistance));
+                    document.getElementById('zoomControl').value = cameraDistance;
+                    updateCameraPosition();
                 }
+                lastTouchDistance = touchDistance;
             }
-
-            updateInfo();
-            renderer.render(scene, camera);
-        } catch (error) {
-            console.error('Animation error:', error);
         }
-    }
 
-    // Handle window resize
-    window.addEventListener('resize', function() {
-        try {
-            const container = document.getElementById('container');
-            const containerRect = container.getBoundingClientRect();
+        function handleTouchEnd(event) {
+            event.preventDefault();
+            touches = Array.from(event.touches);
+            if (touches.length === 0) {
+                isDragging = false;
+                lastTouchDistance = 0;
+            } else if (touches.length === 1) {
+                isDragging = true;
+                previousMousePosition = { x: touches[0].clientX, y: touches[0].clientY };
+                lastTouchDistance = 0;
+            }
+        }
+
+        function updateDallasPosition() {
+            try {
+                const earthRadius = 1;
+                let x = earthRadius * Math.cos(dallasLat) * Math.cos(dallasLon + earthRotation);
+                let y = earthRadius * Math.sin(dallasLat);
+                let z = earthRadius * Math.cos(dallasLat) * Math.sin(dallasLon + earthRotation);
+                
+                const seasonalTilt = earthTilt * Math.cos(orbitalRotation);
+                const yTilted = y * Math.cos(seasonalTilt) - z * Math.sin(seasonalTilt);
+                const zTilted = y * Math.sin(seasonalTilt) + z * Math.cos(seasonalTilt);
+                
+                dallasPoint.position.set(
+                    earth.position.x + x,
+                    earth.position.y + yTilted,
+                    earth.position.z + zTilted
+                );
+
+                if (isAnimating && animationPhase >= 1) {
+                    tracePoints.push(new THREE.Vector3(
+                        dallasPoint.position.x,
+                        dallasPoint.position.y,
+                        dallasPoint.position.z
+                    ));
+                    updateTraceLine();
+                }
+            } catch (error) {
+                console.error('Error updating Dallas position:', error);
+            }
+        }
+
+        function updateMoonPosition() {
+            try {
+                if (!moon || !earth) return;
+                
+                // Calculate time in days since epoch
+                const timeInDays = moonMeanMotion / (2 * Math.PI / moonOrbitalPeriod);
+                
+                // Calculate apsidal precession (major axis rotation)
+                const apsicalPrecession = (2 * Math.PI * timeInDays) / apsicalPrecessionPeriod;
+                
+                // Calculate nodal precession (orbital plane rotation)
+                const nodalPrecession = (2 * Math.PI * timeInDays) / nodalPrecessionPeriod;
+                
+                // Solve Kepler's equation for eccentric anomaly
+                let eccentricAnomaly = moonAnomaly; // Initial guess
+                for (let i = 0; i < 10; i++) {
+                    const deltaE = (eccentricAnomaly - moonEccentricity * Math.sin(eccentricAnomaly) - moonAnomaly) /
+                                   (1 - moonEccentricity * Math.cos(eccentricAnomaly));
+                    eccentricAnomaly -= deltaE;
+                    if (Math.abs(deltaE) < 1e-8) break;
+                }
+                
+                // Calculate true anomaly
+                const trueAnomaly = 2 * Math.atan(Math.sqrt((1 + moonEccentricity) / (1 - moonEccentricity)) * 
+                                                  Math.tan(eccentricAnomaly / 2));
+                
+                // Calculate current distance based on elliptical orbit
+                const currentDistance = moonSemiMajorAxis * (1 - moonEccentricity * Math.cos(eccentricAnomaly));
+                
+                // Calculate position in orbital plane with apsidal precession
+                const theta = trueAnomaly + apsicalPrecession;
+                let moonX = currentDistance * Math.cos(theta);
+                let moonY = currentDistance * Math.sin(theta) * Math.sin(moonInclination);
+                let moonZ = currentDistance * Math.sin(theta) * Math.cos(moonInclination);
+                
+                // Apply nodal precession (rotation of orbital plane)
+                const cosNode = Math.cos(nodalPrecession);
+                const sinNode = Math.sin(nodalPrecession);
+                const moonXRotated = moonX * cosNode - moonZ * sinNode;
+                const moonZRotated = moonX * sinNode + moonZ * cosNode;
+                
+                // Apply Earth's seasonal tilt
+                const seasonalTilt = earthTilt * Math.cos(orbitalRotation);
+                const moonYTilted = moonY * Math.cos(seasonalTilt) - moonZRotated * Math.sin(seasonalTilt);
+                const moonZTilted = moonY * Math.sin(seasonalTilt) + moonZRotated * Math.cos(seasonalTilt);
+                
+                moon.position.set(
+                    earth.position.x + moonXRotated,
+                    earth.position.y + moonYTilted,
+                    earth.position.z + moonZTilted
+                );
+
+                // Update Moon information
+                updateMoonInfo(currentDistance, moonAnomaly);
+
+                if (isAnimating && animationPhase >= 1 && moonVisible) {
+                    moonTracePoints.push(new THREE.Vector3(
+                        moon.position.x,
+                        moon.position.y,
+                        moon.position.z
+                    ));
+                    updateMoonTraceLine();
+                }
+            } catch (error) {
+                console.error('Error updating Moon position:', error);
+            }
+        }
+
+        function updateMoonInfo(distance, meanAnomaly) {
+            try {
+                // Calculate Moon phase based on position relative to Sun-Earth line
+                const earthToSun = new THREE.Vector3(-earth.position.x, -earth.position.y, -earth.position.z).normalize();
+                const earthToMoon = new THREE.Vector3(
+                    moon.position.x - earth.position.x,
+                    moon.position.y - earth.position.y,
+                    moon.position.z - earth.position.z
+                ).normalize();
+                
+                const phaseAngle = Math.acos(earthToSun.dot(earthToMoon));
+                let phaseDescription = "New Moon";
+                
+                if (phaseAngle < Math.PI / 8) phaseDescription = "New Moon";
+                else if (phaseAngle < 3 * Math.PI / 8) phaseDescription = "Waxing Crescent";
+                else if (phaseAngle < 5 * Math.PI / 8) phaseDescription = "First Quarter";
+                else if (phaseAngle < 7 * Math.PI / 8) phaseDescription = "Waxing Gibbous";
+                else if (phaseAngle < 9 * Math.PI / 8) phaseDescription = "Full Moon";
+                else if (phaseAngle < 11 * Math.PI / 8) phaseDescription = "Waning Gibbous";
+                else if (phaseAngle < 13 * Math.PI / 8) phaseDescription = "Last Quarter";
+                else phaseDescription = "Waning Crescent";
+                
+                document.getElementById('moonPhase').textContent = phaseDescription;
+                document.getElementById('moonDistance').textContent = Math.round(distance * 100000) + " km";
+            } catch (error) {
+                console.error('Error updating moon info:', error);
+            }
+        }
+
+        function updateTraceLine() {
+            try {
+                if (tracePoints.length > 1) {
+                    traceGeometry.setFromPoints(tracePoints);
+                }
+            } catch (error) {
+                console.error('Error updating trace line:', error);
+            }
+        }
+
+        function updateMoonTraceLine() {
+            try {
+                if (moonTracePoints.length > 1 && moonVisible) {
+                    moonTraceGeometry.setFromPoints(moonTracePoints);
+                    moonTraceLine.visible = true;
+                } else {
+                    moonTraceLine.visible = false;
+                }
+            } catch (error) {
+                console.error('Error updating moon trace line:', error);
+            }
+        }
+
+        function startAnimation() {
+            if (!isAnimating) {
+                isAnimating = true;
+                animationPhase = 1;
+                document.getElementById('phase').textContent = 'Earth Rotation';
+            }
+        }
+
+        function resetAnimation() {
+            isAnimating = false;
+            animationPhase = 0;
+            earthRotation = 0;
+            orbitalRotation = 0;
+            moonAnomaly = 0;
+            moonMeanMotion = 0;
+            tracePoints = [];
+            moonTracePoints = [];
             
-            camera.aspect = containerRect.width / containerRect.height;
-            camera.updateProjectionMatrix();
-            renderer.setSize(containerRect.width, containerRect.height, false);
-            renderer.domElement.style.width = '100%';
-            renderer.domElement.style.height = '100%';
-        } catch (error) {
-            console.error('Resize error:', error);
+            earth.position.set(15, 0, 0);
+            earth.rotation.z = earthTilt;
+            earth.material.transparent = false;
+            earth.material.opacity = 1.0;
+            earthTransparent = false;
+            moonVisible = true;
+            moon.visible = moonVisible;
+            moonTraceLine.visible = moonVisible;
+            
+            cameraRotation = { x: 0.35, y: 0 };
+            cameraDistance = 22;
+            document.getElementById('zoomControl').value = cameraDistance;
+            updateCameraPosition();
+            
+            updateDallasPosition();
+            updateMoonPosition();
+            updateTraceLine();
+            updateMoonTraceLine();
+            updateInfo();
+            
+            document.getElementById('phase').textContent = 'Initial View';
         }
-    });
 
-    // Initialize when page loads
-    window.addEventListener('load', function() {
-        init();
-    });
-</script>
-```
+        function toggleTransparency() {
+            earthTransparent = !earthTransparent;
+            earth.material.transparent = earthTransparent;
+            earth.material.opacity = earthTransparent ? 0.3 : 1.0;
+        }
+
+       function toggleSun() {
+           sunVisible = !sunVisible;
+           sun.visible = sunVisible;
+       }
+
+       function toggleMoon() {
+           moonVisible = !moonVisible;
+           moon.visible = moonVisible;
+           moonTraceLine.visible = moonVisible;
+       }
+
+       function toggleControls() {
+           controlsVisible = !controlsVisible;
+           const controls = document.getElementById('controls');
+           const hideButton = document.getElementById('hideToggle');
+           
+           if (controlsVisible) {
+               controls.classList.remove('hidden');
+               hideButton.textContent = 'Hide Controls';
+           } else {
+               controls.classList.add('hidden');
+               hideButton.textContent = 'Show Controls';
+           }
+       }
+
+       function updateSpeed() {
+           animationSpeed = parseFloat(document.getElementById('speedControl').value);
+       }
+
+       function updateZoom() {
+           cameraDistance = parseFloat(document.getElementById('zoomControl').value);
+           updateCameraPosition();
+       }
+
+       function updateYear() {
+           selectedYear = parseInt(document.getElementById('yearInput').value);
+           if (isAnimating) {
+               resetAnimation();
+           }
+       }
+
+       function updateInfo() {
+           try {
+               document.getElementById('rotation').textContent = Math.round(earthRotation * 180 / Math.PI) + '°';
+               
+               const orbitalDegrees = orbitalRotation * 180 / Math.PI;
+               let season = 'Summer Solstice';
+               if (orbitalDegrees > 45 && orbitalDegrees <= 135) season = 'Fall Equinox';
+               else if (orbitalDegrees > 135 && orbitalDegrees <= 225) season = 'Winter Solstice';
+               else if (orbitalDegrees > 225 && orbitalDegrees <= 315) season = 'Spring Equinox';
+               
+               document.getElementById('orbital').textContent = season + ' (' + Math.round(orbitalDegrees) + '°)';
+           } catch (error) {
+               console.error('Error updating info:', error);
+           }
+       }
+
+       function animate() {
+           try {
+               requestAnimationFrame(animate);
+
+               if (isAnimating) {
+                   const rotationSpeed = 0.05 * animationSpeed;
+                   const orbitalSpeed = rotationSpeed / 365.25;
+                   
+                   // Astronomically accurate Moon orbital speed
+                   const moonOrbitalSpeed = (2 * Math.PI / moonOrbitalPeriod) * animationSpeed * 0.05;
+
+                   if (animationPhase === 1) {
+                       earthRotation += rotationSpeed;
+                       moonAnomaly += moonOrbitalSpeed;
+                       moonMeanMotion += moonOrbitalSpeed;
+                       updateDallasPosition();
+                       updateMoonPosition();
+                       
+                       if (earthRotation >= 2 * Math.PI) {
+                           animationPhase = 2;
+                           earth.material.transparent = true;
+                           earth.material.opacity = 0.3;
+                           earthTransparent = true;
+                           document.getElementById('phase').textContent = 'Orbital Trace';
+                       }
+                   } else if (animationPhase === 2) {
+                       earthRotation += rotationSpeed;
+                       orbitalRotation += orbitalSpeed;
+                       moonAnomaly += moonOrbitalSpeed;
+                       moonMeanMotion += moonOrbitalSpeed;
+                       
+                       const orbitRadius = 15;
+                       earth.position.x = orbitRadius * Math.cos(orbitalRotation);
+                       earth.position.z = orbitRadius * Math.sin(orbitalRotation);
+                       earth.rotation.z = earthTilt * Math.cos(orbitalRotation);
+                       
+                       updateDallasPosition();
+                       updateMoonPosition();
+                       
+                       if (orbitalRotation >= 2 * Math.PI) {
+                           isAnimating = false;
+                           document.getElementById('phase').textContent = 'Complete';
+                       }
+                   }
+               }
+
+               updateInfo();
+               renderer.render(scene, camera);
+           } catch (error) {
+               console.error('Animation error:', error);
+           }
+       }
+
+       // Handle window resize
+       window.addEventListener('resize', function() {
+           try {
+               const container = document.getElementById('container');
+               const containerRect = container.getBoundingClientRect();
+               
+               camera.aspect = containerRect.width / containerRect.height;
+               camera.updateProjectionMatrix();
+               renderer.setSize(containerRect.width, containerRect.height, false);
+               renderer.domElement.style.width = '100%';
+               renderer.domElement.style.height = '100%';
+           } catch (error) {
+               console.error('Resize error:', error);
+           }
+       });
+
+       // Initialize when page loads
+       window.addEventListener('load', function() {
+           init();
+       });
+   </script>
 
 </body>
 </html>
